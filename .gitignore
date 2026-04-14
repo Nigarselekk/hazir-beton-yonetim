@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# .NET build outputs
+bin/
+obj/
+
+# IDE folders
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.suo
+
+# Local development secrets
+src/API/appsettings.Development.json
+
+# Claude local files
+.claude/
