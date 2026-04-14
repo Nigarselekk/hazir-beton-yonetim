@@ -1,23 +1,4 @@
-—  BETON YÖNETİM SİSTEMİ PLANI —
-
-Aşağıda, konuştuğumuz tüm kararlar, düzeltmeler, sınırlar, ileri fazlar ve özel kurallar işlenmiş şekilde, hataları düzeltilmiş detaylı nihai proje planını veriyorum.
-Bu versiyonda özellikle şunlar doğru şekilde sabitlendi:
-* Kullanıcı yönetimi ve yetki verme sadece Ana Yöneticiye ait
-* Muhasebe kullanıcısı ayrı rol
-* Dashboard ayrı bir ana ekran
-* Program modülü ayrı, takvim Dashboard içinde izleme amaçlı
-* Müşteri talep oluşturmaz, operasyoncu oluşturur
-* Talep edilen saat ile onaylanan randevu saati ayrıdır
-* Talep edilen miktar ile teslim edilen miktar ayrıdır
-* Araç atama manuel yapılır
-* Maliyet verisi kalem bazlı ve günlük girilir
-* Netsis ve Olympos entegrasyonları veri kaynağı olarak düşünülür
-* GPS önce iç kullanım, sonra müşteri taraflı canlı takip olarak genişler
-* Web + mobil + masaüstü olacak, iş mantığı tek merkezde olacak
-Aşağıdaki doküman artık gerçek anlamda ürün analiz ve kapsam dokümanıdır.
-
-HAZIR BETON OPERASYON YÖNETİM SİSTEMİ
-Nihai Detaylı Proje Planı
+HAZIR BETON OPERASYON YÖNETİM SİSTEMİ — Proje Planı
 
 1. Projenin temel amacı
 Bu sistemin amacı, hazır beton operasyonunda yer alan tüm temel süreçleri tek bir merkezden yönetilebilir hale getirmektir.
