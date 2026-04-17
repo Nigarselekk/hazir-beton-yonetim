@@ -15,9 +15,11 @@ public class ConcreteRequestConfiguration : IEntityTypeConfiguration<ConcreteReq
         builder.Property(cr => cr.RequesterName).IsRequired().HasMaxLength(200);
         builder.Property(cr => cr.CompanyContactPhone).IsRequired().HasMaxLength(20);
         builder.Property(cr => cr.SiteContactPhone).IsRequired().HasMaxLength(20);
-        builder.Property(cr => cr.ConcreteType).IsRequired().HasMaxLength(100);
+        builder.Property(cr => cr.MaterialType).IsRequired().HasMaxLength(100);
+        builder.Property(cr => cr.Note).HasMaxLength(1000);
         builder.Property(cr => cr.RequestedQuantity).HasPrecision(10, 2);
-        builder.Property(cr => cr.Price).HasPrecision(18, 2);
+        builder.Property(cr => cr.UnitPrice).HasPrecision(18, 2);
+        builder.Property(cr => cr.TotalAmount).HasPrecision(18, 2);
         builder.Property(cr => cr.WaybillType).IsRequired().HasMaxLength(100);
         builder.Property(cr => cr.DeliveryMethod).IsRequired().HasMaxLength(100);
         builder.Property(cr => cr.DeliveredQuantity).HasPrecision(10, 2);
@@ -33,9 +35,9 @@ public class ConcreteRequestConfiguration : IEntityTypeConfiguration<ConcreteReq
             .HasForeignKey(cr => cr.SiteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(cr => cr.Vehicle)
-            .WithMany(v => v.ConcreteRequests)
-            .HasForeignKey(cr => cr.VehicleId)
+        builder.HasOne(cr => cr.ApprovedBy)
+            .WithMany()
+            .HasForeignKey(cr => cr.ApprovedById)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(cr => cr.AssignedBy)

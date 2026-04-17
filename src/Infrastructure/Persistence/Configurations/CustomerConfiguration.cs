@@ -14,6 +14,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.Property(c => c.CompanyName).IsRequired().HasMaxLength(200);
         builder.Property(c => c.CommercialCode).IsRequired().HasMaxLength(50);
+        builder.Property(c => c.IdentityOrTaxNumber).HasMaxLength(20);
         builder.Property(c => c.Phone).IsRequired().HasMaxLength(20);
         builder.Property(c => c.Address).HasMaxLength(500);
         builder.Property(c => c.Notes).HasMaxLength(1000);

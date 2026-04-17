@@ -11,5 +11,5 @@ public class Vehicle : BaseEntity
     public DateOnly? NextMaintenanceDate { get; set; }
 
     public ICollection<VehiclePersonnel> VehiclePersonnel { get; set; } = new List<VehiclePersonnel>();
-    public ICollection<ConcreteRequest> ConcreteRequests { get; set; } = new List<ConcreteRequest>();
+    public ICollection<ConcreteRequestVehicle> ConcreteRequestVehicles { get; set; } = new List<ConcreteRequestVehicle>();
 }

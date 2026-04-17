@@ -14,12 +14,16 @@ public class ConcreteRequest : BaseEntity
     public string CompanyContactPhone { get; set; } = string.Empty;
     public string SiteContactPhone { get; set; } = string.Empty;
 
-    public string ConcreteType { get; set; } = string.Empty;
+    public string MaterialType { get; set; } = string.Empty;
 
     // Requested quantity: what the customer asked for (never overwritten)
     public decimal RequestedQuantity { get; set; }
 
-    public decimal Price { get; set; }
+    public decimal UnitPrice { get; set; }
+
+    // Stored for reporting; equals UnitPrice × RequestedQuantity at creation
+    public decimal TotalAmount { get; set; }
+
     public string WaybillType { get; set; } = string.Empty;
     public string DeliveryMethod { get; set; } = string.Empty;
 
@@ -34,8 +38,8 @@ public class ConcreteRequest : BaseEntity
 
     public ConcreteRequestStatus Status { get; set; } = ConcreteRequestStatus.PendingApproval;
 
-    public Guid? VehicleId { get; set; }
-    public Vehicle? Vehicle { get; set; }
+    public Guid? ApprovedById { get; set; }
+    public User? ApprovedBy { get; set; }
 
     public Guid? AssignedById { get; set; }
     public User? AssignedBy { get; set; }
@@ -43,5 +47,8 @@ public class ConcreteRequest : BaseEntity
     public Guid? CreatedById { get; set; }
     public User? CreatedBy { get; set; }
 
+    public string? Note { get; set; }
+
+    public ICollection<ConcreteRequestVehicle> ConcreteRequestVehicles { get; set; } = new List<ConcreteRequestVehicle>();
     public ICollection<SmsLog> SmsLogs { get; set; } = new List<SmsLog>();
 }
