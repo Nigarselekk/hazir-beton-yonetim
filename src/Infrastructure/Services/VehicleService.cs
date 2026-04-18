@@ -30,10 +30,10 @@ public class VehicleService : IVehicleService
             .ToListAsync();
     }
 
-    public async Task<List<VehicleDto>> GetMaintenanceAlertsAsync()
+    public async Task<List<VehicleDto>> GetMaintenanceAlertsAsync(int? days = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var threshold = today.AddDays(MaintenanceAlertDays);
+        var threshold = today.AddDays(days ?? MaintenanceAlertDays);
 
         return await _context.Vehicles
             .Where(v => v.Status == VehicleStatus.UnderMaintenance ||

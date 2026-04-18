@@ -20,8 +20,8 @@ public class VehiclesController : ControllerBase
         Ok(await _vehicles.GetAllAsync(status));
 
     [HttpGet("maintenance-alerts")]
-    public async Task<IActionResult> GetMaintenanceAlerts() =>
-        Ok(await _vehicles.GetMaintenanceAlertsAsync());
+    public async Task<IActionResult> GetMaintenanceAlerts([FromQuery] int? days = null) =>
+        Ok(await _vehicles.GetMaintenanceAlertsAsync(days));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
