@@ -1,5 +1,6 @@
 using HazirBeton.Application.Features.Customers;
 using HazirBeton.Application.Features.Sites;
+using HazirBeton.Application.Features.Vehicles;
 using HazirBeton.Infrastructure.Persistence;
 using HazirBeton.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISiteService, SiteService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
