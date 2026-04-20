@@ -24,10 +24,11 @@ public class VehicleService : IVehicleService
         if (status.HasValue)
             query = query.Where(v => v.Status == status.Value);
 
-        return await query
-            .OrderBy(v => v.Plate)
-            .Select(v => ToDto(v))
-            .ToListAsync();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var threshold = today.AddDays(MaintenanceAlertDays);
+
+        var vehicles = await query.OrderBy(v => v.Plate).ToListAsync();
+        return vehicles.Select(v => ToDto(v, today, threshold)).ToList();
     }
 
     public async Task<List<VehicleDto>> GetMaintenanceAlertsAsync(int? days = null)
@@ -35,18 +36,23 @@ public class VehicleService : IVehicleService
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var threshold = today.AddDays(days ?? MaintenanceAlertDays);
 
-        return await _context.Vehicles
-            .Where(v => v.Status == VehicleStatus.UnderMaintenance ||
-                        (v.NextMaintenanceDate.HasValue && v.NextMaintenanceDate.Value <= threshold))
+        var vehicles = await _context.Vehicles
+            .Where(v => v.Status == VehicleStatus.Active &&
+                        v.NextMaintenanceDate.HasValue &&
+                        v.NextMaintenanceDate.Value <= threshold)
             .OrderBy(v => v.NextMaintenanceDate)
-            .Select(v => ToDto(v))
             .ToListAsync();
+
+        return vehicles.Select(v => ToDto(v, today, threshold)).ToList();
     }
 
     public async Task<VehicleDto?> GetByIdAsync(Guid id)
     {
         var vehicle = await _context.Vehicles.FindAsync(id);
-        return vehicle is null ? null : ToDto(vehicle);
+        if (vehicle is null) return null;
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        return ToDto(vehicle, today, today.AddDays(MaintenanceAlertDays));
     }
 
     public async Task<VehicleDto> CreateAsync(CreateVehicleRequest request)
@@ -73,7 +79,8 @@ public class VehicleService : IVehicleService
         _context.Vehicles.Add(vehicle);
         await _context.SaveChangesAsync();
 
-        return ToDto(vehicle);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        return ToDto(vehicle, today, today.AddDays(MaintenanceAlertDays));
     }
 
     public async Task<VehicleDto?> UpdateAsync(Guid id, UpdateVehicleRequest request)
@@ -98,7 +105,8 @@ public class VehicleService : IVehicleService
 
         await _context.SaveChangesAsync();
 
-        return ToDto(vehicle);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        return ToDto(vehicle, today, today.AddDays(MaintenanceAlertDays));
     }
 
     public async Task<bool> DeactivateAsync(Guid id)
@@ -113,13 +121,13 @@ public class VehicleService : IVehicleService
         return true;
     }
 
-    private static VehicleDto ToDto(Vehicle v)
+    private static VehicleDto ToDto(Vehicle v, DateOnly today, DateOnly threshold)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var threshold = today.AddDays(MaintenanceAlertDays);
+        var alert = v.Status == VehicleStatus.Active &&
+                    v.NextMaintenanceDate.HasValue &&
+                    v.NextMaintenanceDate.Value <= threshold;
 
-        var alert = v.Status == VehicleStatus.UnderMaintenance ||
-                    (v.NextMaintenanceDate.HasValue && v.NextMaintenanceDate.Value <= threshold);
+        var overdue = v.NextMaintenanceDate.HasValue && v.NextMaintenanceDate.Value < today;
 
         return new VehicleDto(
             v.Id,
@@ -131,6 +139,7 @@ public class VehicleService : IVehicleService
             v.LastMaintenanceDate,
             v.NextMaintenanceDate,
             alert,
+            overdue,
             v.CreatedAt
         );
     }
