@@ -1,6 +1,7 @@
 using HazirBeton.Application.Features.Customers;
 using HazirBeton.Application.Features.Personnel;
 using HazirBeton.Application.Features.Sites;
+using HazirBeton.Application.Features.VehiclePersonnel;
 using HazirBeton.Application.Features.Vehicles;
 using HazirBeton.Infrastructure.Persistence;
 using HazirBeton.Infrastructure.Services;
@@ -15,6 +16,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISiteService, SiteService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IPersonnelService, PersonnelService>();
+builder.Services.AddScoped<IVehiclePersonnelService, VehiclePersonnelService>();
 
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
