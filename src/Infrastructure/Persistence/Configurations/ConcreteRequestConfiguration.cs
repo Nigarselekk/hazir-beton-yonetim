@@ -17,6 +17,7 @@ public class ConcreteRequestConfiguration : IEntityTypeConfiguration<ConcreteReq
         builder.Property(cr => cr.SiteContactPhone).IsRequired().HasMaxLength(20);
         builder.Property(cr => cr.MaterialType).IsRequired().HasMaxLength(100);
         builder.Property(cr => cr.Note).HasMaxLength(1000);
+        builder.Property(cr => cr.CancellationReason).HasMaxLength(500);
         builder.Property(cr => cr.RequestedQuantity).HasPrecision(10, 2);
         builder.Property(cr => cr.UnitPrice).HasPrecision(18, 2);
         builder.Property(cr => cr.TotalAmount).HasPrecision(18, 2);

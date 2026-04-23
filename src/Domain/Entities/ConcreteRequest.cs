@@ -48,6 +48,7 @@ public class ConcreteRequest : BaseEntity
     public User? CreatedBy { get; set; }
 
     public string? Note { get; set; }
+    public string? CancellationReason { get; set; }
 
     public ICollection<ConcreteRequestVehicle> ConcreteRequestVehicles { get; set; } = new List<ConcreteRequestVehicle>();
     public ICollection<SmsLog> SmsLogs { get; set; } = new List<SmsLog>();
