@@ -30,6 +30,7 @@ public record ConcreteRequestDto(
     ConcreteRequestUserDto? ApprovedBy,
     ConcreteRequestUserDto? AssignedBy,
     ConcreteRequestUserDto? DeliveryRecordedBy,
+    ConcreteRequestUserDto? CancelledBy,
     DateTime CreatedAt
 );
 

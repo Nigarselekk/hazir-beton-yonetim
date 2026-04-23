@@ -55,5 +55,10 @@ public class ConcreteRequestConfiguration : IEntityTypeConfiguration<ConcreteReq
             .WithMany()
             .HasForeignKey(cr => cr.DeliveryRecordedById)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(cr => cr.CancelledBy)
+            .WithMany()
+            .HasForeignKey(cr => cr.CancelledById)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
