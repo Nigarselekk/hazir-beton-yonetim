@@ -47,6 +47,9 @@ public class ConcreteRequest : BaseEntity
     public Guid? CreatedById { get; set; }
     public User? CreatedBy { get; set; }
 
+    public Guid? DeliveryRecordedById { get; set; }
+    public User? DeliveryRecordedBy { get; set; }
+
     public string? Note { get; set; }
     public string? CancellationReason { get; set; }
 

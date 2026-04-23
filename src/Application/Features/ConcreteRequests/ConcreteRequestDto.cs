@@ -29,6 +29,7 @@ public record ConcreteRequestDto(
     ConcreteRequestUserDto? CreatedBy,
     ConcreteRequestUserDto? ApprovedBy,
     ConcreteRequestUserDto? AssignedBy,
+    ConcreteRequestUserDto? DeliveryRecordedBy,
     DateTime CreatedAt
 );
 

@@ -10,6 +10,6 @@ public interface IConcreteRequestService
     Task<ConcreteRequestDto> ApproveAsync(Guid id, ApproveConcreteRequestRequest request, Guid approvedByUserId);
     Task<ConcreteRequestDto> AssignVehicleAsync(Guid id, AssignVehicleRequest request, Guid assignedByUserId);
     Task RemoveVehicleAsync(Guid id, Guid vehicleId);
-    Task<ConcreteRequestDto> DeliverAsync(Guid id, DeliveryEntryRequest request);
+    Task<ConcreteRequestDto> DeliverAsync(Guid id, DeliveryEntryRequest request, Guid deliveryRecordedByUserId);
     Task<ConcreteRequestDto> CancelAsync(Guid id, CancelConcreteRequestRequest request);
 }
