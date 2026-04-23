@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<VehiclePersonnel> VehiclePersonnel => Set<VehiclePersonnel>();
     public DbSet<ConcreteRequestVehicle> ConcreteRequestVehicles => Set<ConcreteRequestVehicle>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserPermission> UserPermissions => Set<UserPermission>();
     public DbSet<CostEntry> CostEntries => Set<CostEntry>();
     public DbSet<SmsLog> SmsLogs => Set<SmsLog>();
 

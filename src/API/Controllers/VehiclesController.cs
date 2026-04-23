@@ -1,3 +1,4 @@
+using HazirBeton.API.Authorization;
 using HazirBeton.Application.Features.Vehicles;
 using HazirBeton.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +17,17 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Permission.FleetRead)]
     public async Task<IActionResult> GetAll([FromQuery] VehicleStatus? status = null) =>
         Ok(await _vehicles.GetAllAsync(status));
 
     [HttpGet("maintenance-alerts")]
+    [RequirePermission(Permission.FleetRead)]
     public async Task<IActionResult> GetMaintenanceAlerts([FromQuery] int? days = null) =>
         Ok(await _vehicles.GetMaintenanceAlertsAsync(days));
 
     [HttpGet("{id:guid}")]
+    [RequirePermission(Permission.FleetRead)]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _vehicles.GetByIdAsync(id);
@@ -31,6 +35,7 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> Create(CreateVehicleRequest request)
     {
         try
@@ -45,6 +50,7 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> Update(Guid id, UpdateVehicleRequest request)
     {
         try
@@ -59,6 +65,7 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> Deactivate(Guid id)
     {
         var result = await _vehicles.DeactivateAsync(id);

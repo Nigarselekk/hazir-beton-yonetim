@@ -1,4 +1,6 @@
+using HazirBeton.API.Authorization;
 using HazirBeton.Application.Features.Personnel;
+using HazirBeton.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HazirBeton.API.Controllers;
@@ -15,10 +17,12 @@ public class PersonnelController : ControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Permission.PersonnelRead)]
     public async Task<IActionResult> GetAll([FromQuery] bool? isActive = null) =>
         Ok(await _personnel.GetAllAsync(isActive));
 
     [HttpGet("{id:guid}")]
+    [RequirePermission(Permission.PersonnelRead)]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _personnel.GetByIdAsync(id);
@@ -26,6 +30,7 @@ public class PersonnelController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission(Permission.PersonnelWrite)]
     public async Task<IActionResult> Create(CreatePersonnelRequest request)
     {
         try
@@ -40,6 +45,7 @@ public class PersonnelController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RequirePermission(Permission.PersonnelWrite)]
     public async Task<IActionResult> Update(Guid id, UpdatePersonnelRequest request)
     {
         try
@@ -54,6 +60,7 @@ public class PersonnelController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission(Permission.PersonnelWrite)]
     public async Task<IActionResult> Deactivate(Guid id)
     {
         var result = await _personnel.DeactivateAsync(id);
@@ -61,6 +68,7 @@ public class PersonnelController : ControllerBase
     }
 
     [HttpPost("{id:guid}/reactivate")]
+    [RequirePermission(Permission.PersonnelWrite)]
     public async Task<IActionResult> Reactivate(Guid id)
     {
         var result = await _personnel.ReactivateAsync(id);

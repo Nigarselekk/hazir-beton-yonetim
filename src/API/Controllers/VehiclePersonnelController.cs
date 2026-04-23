@@ -1,5 +1,7 @@
+using HazirBeton.API.Authorization;
 using HazirBeton.Application.Exceptions;
 using HazirBeton.Application.Features.VehiclePersonnel;
+using HazirBeton.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HazirBeton.API.Controllers;
@@ -16,10 +18,12 @@ public class VehiclePersonnelController : ControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Permission.FleetRead)]
     public async Task<IActionResult> GetByVehicle(Guid vehicleId) =>
         Ok(await _service.GetByVehicleAsync(vehicleId));
 
     [HttpPost]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> Assign(Guid vehicleId, AssignPersonnelRequest request)
     {
         try
@@ -38,6 +42,7 @@ public class VehiclePersonnelController : ControllerBase
     }
 
     [HttpPut("{personnelId:guid}")]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> UpdateRole(Guid vehicleId, Guid personnelId, UpdateAssignmentTypeRequest request)
     {
         try
@@ -52,6 +57,7 @@ public class VehiclePersonnelController : ControllerBase
     }
 
     [HttpDelete("{personnelId:guid}")]
+    [RequirePermission(Permission.FleetWrite)]
     public async Task<IActionResult> Remove(Guid vehicleId, Guid personnelId)
     {
         var result = await _service.RemoveAsync(vehicleId, personnelId);

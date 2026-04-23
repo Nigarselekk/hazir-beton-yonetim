@@ -1,6 +1,8 @@
+using HazirBeton.API.Authorization;
 using HazirBeton.Application.Exceptions;
 using HazirBeton.Application.Features.Customers;
 using HazirBeton.Application.Features.Sites;
+using HazirBeton.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HazirBeton.API.Controllers;
@@ -19,10 +21,12 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(Permission.CustomersRead)]
     public async Task<IActionResult> GetAll() =>
         Ok(await _customers.GetAllAsync());
 
     [HttpGet("{id:guid}")]
+    [RequirePermission(Permission.CustomersRead)]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _customers.GetByIdAsync(id);
@@ -30,10 +34,12 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet("{id:guid}/sites")]
+    [RequirePermission(Permission.CustomersRead)]
     public async Task<IActionResult> GetSites(Guid id) =>
         Ok(await _sites.GetAllAsync(customerId: id));
 
     [HttpPost]
+    [RequirePermission(Permission.CustomersWrite)]
     public async Task<IActionResult> Create(CreateCustomerRequest request)
     {
         try
@@ -48,6 +54,7 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RequirePermission(Permission.CustomersWrite)]
     public async Task<IActionResult> Update(Guid id, UpdateCustomerRequest request)
     {
         try
@@ -62,6 +69,7 @@ public class CustomersController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission(Permission.CustomersWrite)]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
