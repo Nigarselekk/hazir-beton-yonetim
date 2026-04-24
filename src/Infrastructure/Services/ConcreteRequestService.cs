@@ -72,34 +72,34 @@ public class ConcreteRequestService : IConcreteRequestService
     public async Task<ConcreteRequestDto> CreateAsync(CreateConcreteRequestRequest request, Guid createdByUserId)
     {
         if (string.IsNullOrWhiteSpace(request.RequesterName))
-            throw new ArgumentException("RequesterName is required.");
+            throw new ArgumentException("Talep eden kişi adı zorunludur.");
         if (string.IsNullOrWhiteSpace(request.CompanyContactPhone))
-            throw new ArgumentException("CompanyContactPhone is required.");
+            throw new ArgumentException("Firma iletişim telefonu zorunludur.");
         if (string.IsNullOrWhiteSpace(request.SiteContactPhone))
-            throw new ArgumentException("SiteContactPhone is required.");
+            throw new ArgumentException("Şantiye iletişim telefonu zorunludur.");
         if (string.IsNullOrWhiteSpace(request.MaterialType))
-            throw new ArgumentException("MaterialType is required.");
+            throw new ArgumentException("Malzeme türü zorunludur.");
         if (string.IsNullOrWhiteSpace(request.WaybillType))
-            throw new ArgumentException("WaybillType is required.");
+            throw new ArgumentException("İrsaliye türü zorunludur.");
         if (string.IsNullOrWhiteSpace(request.DeliveryMethod))
-            throw new ArgumentException("DeliveryMethod is required.");
+            throw new ArgumentException("Teslimat yöntemi zorunludur.");
         if (request.RequestedQuantity <= 0)
-            throw new ArgumentException("RequestedQuantity must be greater than zero.");
+            throw new ArgumentException("Talep edilen miktar sıfırdan büyük olmalıdır.");
         if (request.UnitPrice < 0)
-            throw new ArgumentException("UnitPrice cannot be negative.");
+            throw new ArgumentException("Birim fiyat negatif olamaz.");
         if (request.RequestedDateTime < DateTime.UtcNow)
             throw new ArgumentException("Geçmiş bir tarih için beton talebi oluşturulamaz.");
 
         var customerExists = await _context.Customers.AnyAsync(c => c.Id == request.CustomerId);
         if (!customerExists)
-            throw new ArgumentException($"Customer with id '{request.CustomerId}' not found.");
+            throw new ArgumentException($"'{request.CustomerId}' ID'li müşteri bulunamadı.");
 
         var site = await _context.Sites.FirstOrDefaultAsync(s => s.Id == request.SiteId);
         if (site is null)
-            throw new ArgumentException($"Site with id '{request.SiteId}' not found.");
+            throw new ArgumentException($"'{request.SiteId}' ID'li şantiye bulunamadı.");
 
         if (site.CustomerId != request.CustomerId)
-            throw new ArgumentException("Site does not belong to the specified customer.");
+            throw new ArgumentException("Seçilen şantiye belirtilen müşteriye ait değil.");
 
         var entity = new ConcreteRequest
         {
@@ -134,7 +134,7 @@ public class ConcreteRequestService : IConcreteRequestService
     {
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
-            throw new KeyNotFoundException($"Concrete request '{id}' not found.");
+            throw new KeyNotFoundException($"'{id}' ID'li beton talebi bulunamadı.");
 
         ValidateTransition(entity.Status, ConcreteRequestStatus.Approved);
 
@@ -162,7 +162,7 @@ public class ConcreteRequestService : IConcreteRequestService
     {
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
-            throw new KeyNotFoundException($"Concrete request '{id}' not found.");
+            throw new KeyNotFoundException($"'{id}' ID'li beton talebi bulunamadı.");
 
         if (entity.Status != ConcreteRequestStatus.Approved)
             throw new ConflictException(
@@ -170,7 +170,7 @@ public class ConcreteRequestService : IConcreteRequestService
 
         var vehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.Id == request.VehicleId);
         if (vehicle is null)
-            throw new KeyNotFoundException($"Vehicle '{request.VehicleId}' not found.");
+            throw new KeyNotFoundException($"'{request.VehicleId}' ID'li araç bulunamadı.");
 
         if (vehicle.Status != VehicleStatus.Active)
             throw new ConflictException(
@@ -202,7 +202,7 @@ public class ConcreteRequestService : IConcreteRequestService
     {
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
-            throw new KeyNotFoundException($"Concrete request '{id}' not found.");
+            throw new KeyNotFoundException($"'{id}' ID'li beton talebi bulunamadı.");
 
         if (entity.Status != ConcreteRequestStatus.Approved)
             throw new ConflictException(
@@ -211,7 +211,7 @@ public class ConcreteRequestService : IConcreteRequestService
         var link = await _context.ConcreteRequestVehicles
             .FirstOrDefaultAsync(crv => crv.ConcreteRequestId == id && crv.VehicleId == vehicleId);
         if (link is null)
-            throw new KeyNotFoundException($"Vehicle '{vehicleId}' is not assigned to this concrete request.");
+            throw new KeyNotFoundException($"'{vehicleId}' ID'li araç bu talebe atanmamış.");
 
         _context.ConcreteRequestVehicles.Remove(link);
         entity.UpdatedAt = DateTime.UtcNow;
@@ -222,11 +222,11 @@ public class ConcreteRequestService : IConcreteRequestService
     public async Task<ConcreteRequestDto> DeliverAsync(Guid id, DeliveryEntryRequest request, Guid deliveryRecordedByUserId)
     {
         if (request.DeliveredQuantity <= 0)
-            throw new ArgumentException("DeliveredQuantity must be greater than zero.");
+            throw new ArgumentException("Teslim edilen miktar sıfırdan büyük olmalıdır.");
 
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
-            throw new KeyNotFoundException($"Concrete request '{id}' not found.");
+            throw new KeyNotFoundException($"'{id}' ID'li beton talebi bulunamadı.");
 
         ValidateTransition(entity.Status, ConcreteRequestStatus.Delivered);
 
@@ -245,7 +245,7 @@ public class ConcreteRequestService : IConcreteRequestService
     {
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
-            throw new KeyNotFoundException($"Concrete request '{id}' not found.");
+            throw new KeyNotFoundException($"'{id}' ID'li beton talebi bulunamadı.");
 
         ValidateTransition(entity.Status, ConcreteRequestStatus.Cancelled);
 
