@@ -38,7 +38,10 @@ public class ConcreteRequestService : IConcreteRequestService
             query = query.Where(cr => cr.RequestedDateTime >= filter.FromDate.Value);
 
         if (filter.ToDate.HasValue)
-            query = query.Where(cr => cr.RequestedDateTime <= filter.ToDate.Value);
+        {
+            var toDateExclusive = filter.ToDate.Value.Date.AddDays(1);
+            query = query.Where(cr => cr.RequestedDateTime < toDateExclusive);
+        }
 
         if (filter.CustomerId.HasValue)
             query = query.Where(cr => cr.CustomerId == filter.CustomerId.Value);
@@ -84,6 +87,8 @@ public class ConcreteRequestService : IConcreteRequestService
             throw new ArgumentException("RequestedQuantity must be greater than zero.");
         if (request.UnitPrice < 0)
             throw new ArgumentException("UnitPrice cannot be negative.");
+        if (request.RequestedDateTime < DateTime.UtcNow)
+            throw new ArgumentException("Geçmiş bir tarih için beton talebi oluşturulamaz.");
 
         var customerExists = await _context.Customers.AnyAsync(c => c.Id == request.CustomerId);
         if (!customerExists)
@@ -133,10 +138,16 @@ public class ConcreteRequestService : IConcreteRequestService
 
         ValidateTransition(entity.Status, ConcreteRequestStatus.Approved);
 
-        entity.ApprovedAppointmentDateTime =
+        var finalAppointment =
             request.ApprovedAppointmentDateTime is { } appointment && appointment != default
                 ? appointment
                 : entity.RequestedDateTime;
+
+        if (finalAppointment < DateTime.UtcNow)
+            throw new ArgumentException(
+                "Onaylanan randevu saati geçmişte olamaz. Lütfen geçerli bir saat girin veya talebi iptal edin.");
+
+        entity.ApprovedAppointmentDateTime = finalAppointment;
         entity.Status = ConcreteRequestStatus.Approved;
         entity.ApprovedById = approvedByUserId;
         entity.UpdatedAt = DateTime.UtcNow;
