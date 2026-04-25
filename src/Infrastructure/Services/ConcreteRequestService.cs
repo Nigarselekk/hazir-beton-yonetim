@@ -361,7 +361,8 @@ public class ConcreteRequestService : IConcreteRequestService
             cr.RequestedDateTime,
             cr.ApprovedAppointmentDateTime,
             plates,
-            cr.CreatedAt);
+            cr.CreatedAt,
+            cr.RowVersion);
     }
 
     private static AssignedVehicleDto ToAssignedVehicleDto(Vehicle v, DateOnly today, DateOnly threshold)

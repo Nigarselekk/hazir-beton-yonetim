@@ -16,5 +16,6 @@ public record ConcreteRequestListDto(
     DateTime RequestedDateTime,
     DateTime? ApprovedAppointmentDateTime,
     List<string> AssignedVehiclePlates,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    uint RowVersion
 );
