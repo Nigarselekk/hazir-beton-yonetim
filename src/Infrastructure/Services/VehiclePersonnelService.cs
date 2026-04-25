@@ -17,12 +17,14 @@ public class VehiclePersonnelService : IVehiclePersonnelService
 
     public async Task<List<VehiclePersonnelDto>> GetByVehicleAsync(Guid vehicleId)
     {
-        return await _context.VehiclePersonnel
-            .Where(vp => vp.VehicleId == vehicleId)
+        var assignments = await _context.VehiclePersonnel
+            .Include(vp => vp.Personnel)
+            .Where(vp => vp.VehicleId == vehicleId && vp.Personnel.IsActive)
             .OrderBy(vp => vp.AssignmentType)
             .ThenBy(vp => vp.Personnel.FullName)
-            .Select(vp => ToDto(vp))
             .ToListAsync();
+
+        return assignments.Select(ToDto).ToList();
     }
 
     public async Task<VehiclePersonnelDto> AssignAsync(Guid vehicleId, AssignPersonnelRequest request)
@@ -74,6 +76,9 @@ public class VehiclePersonnelService : IVehiclePersonnelService
             .FirstOrDefaultAsync(vp => vp.VehicleId == vehicleId && vp.PersonnelId == personnelId);
 
         if (assignment is null) return null;
+
+        if (!assignment.Personnel.IsActive)
+            throw new ConflictException("Pasif personelin rol ataması güncellenemez.");
 
         if (request.AssignmentType == PersonnelAssignmentType.Primary)
         {
