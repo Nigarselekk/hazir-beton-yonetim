@@ -1,5 +1,6 @@
 namespace HazirBeton.Application.Features.ConcreteRequests;
 
 public record ApproveConcreteRequestRequest(
-    DateTime? ApprovedAppointmentDateTime
+    DateTime? ApprovedAppointmentDateTime,
+    uint RowVersion
 );

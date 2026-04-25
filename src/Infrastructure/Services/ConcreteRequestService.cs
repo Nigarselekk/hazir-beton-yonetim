@@ -152,6 +152,7 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.ApprovedById = approvedByUserId;
         entity.UpdatedAt = DateTime.UtcNow;
 
+        _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
@@ -192,13 +193,14 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.AssignedById = assignedByUserId;
         entity.UpdatedAt = DateTime.UtcNow;
 
+        _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
         return ToDto(full!);
     }
 
-    public async Task RemoveVehicleAsync(Guid id, Guid vehicleId)
+    public async Task RemoveVehicleAsync(Guid id, Guid vehicleId, uint rowVersion)
     {
         var entity = await _context.ConcreteRequests.FirstOrDefaultAsync(cr => cr.Id == id);
         if (entity is null)
@@ -216,6 +218,7 @@ public class ConcreteRequestService : IConcreteRequestService
         _context.ConcreteRequestVehicles.Remove(link);
         entity.UpdatedAt = DateTime.UtcNow;
 
+        _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = rowVersion;
         await _context.SaveChangesAsync();
     }
 
@@ -235,6 +238,7 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.DeliveryRecordedById = deliveryRecordedByUserId;
         entity.UpdatedAt = DateTime.UtcNow;
 
+        _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
@@ -254,6 +258,7 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.CancelledById = cancelledByUserId;
         entity.UpdatedAt = DateTime.UtcNow;
 
+        _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
@@ -331,7 +336,8 @@ public class ConcreteRequestService : IConcreteRequestService
             ToUserDto(cr.AssignedBy),
             ToUserDto(cr.DeliveryRecordedBy),
             ToUserDto(cr.CancelledBy),
-            cr.CreatedAt);
+            cr.CreatedAt,
+            cr.RowVersion);
     }
 
     private static ConcreteRequestListDto ToListDto(ConcreteRequest cr)

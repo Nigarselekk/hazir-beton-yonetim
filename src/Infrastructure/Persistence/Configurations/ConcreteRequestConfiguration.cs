@@ -26,6 +26,12 @@ public class ConcreteRequestConfiguration : IEntityTypeConfiguration<ConcreteReq
         builder.Property(cr => cr.DeliveredQuantity).HasPrecision(10, 2);
         builder.Property(cr => cr.Status).HasConversion<string>().IsRequired();
 
+        builder.Property(cr => cr.RowVersion)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .ValueGeneratedOnAddOrUpdate()
+            .IsConcurrencyToken();
+
         builder.HasOne(cr => cr.Customer)
             .WithMany()
             .HasForeignKey(cr => cr.CustomerId)

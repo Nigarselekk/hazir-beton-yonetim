@@ -58,4 +58,7 @@ public class ConcreteRequest : BaseEntity
 
     public ICollection<ConcreteRequestVehicle> ConcreteRequestVehicles { get; set; } = new List<ConcreteRequestVehicle>();
     public ICollection<SmsLog> SmsLogs { get; set; } = new List<SmsLog>();
+
+    // Optimistic concurrency token backed by PostgreSQL's xmin system column.
+    public uint RowVersion { get; set; }
 }

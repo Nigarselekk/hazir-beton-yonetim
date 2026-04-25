@@ -4,6 +4,8 @@ using HazirBeton.Application.Exceptions;
 using HazirBeton.Application.Features.ConcreteRequests;
 using HazirBeton.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace HazirBeton.API.Controllers;
 
@@ -63,6 +65,10 @@ public class ConcreteRequestsController : ControllerBase
         {
             return NotFound();
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ConcurrencyConflict();
+        }
         catch (ConflictException ex)
         {
             return Conflict(new { message = ex.Message });
@@ -86,6 +92,18 @@ public class ConcreteRequestsController : ControllerBase
         {
             return NotFound();
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ConcurrencyConflict();
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            return Conflict(new
+            {
+                errorCode = "duplicate_assignment",
+                message = "Bu araç bu talebe zaten atanmış."
+            });
+        }
         catch (ConflictException ex)
         {
             return Conflict(new { message = ex.Message });
@@ -98,16 +116,20 @@ public class ConcreteRequestsController : ControllerBase
 
     [HttpDelete("{id:guid}/vehicles/{vehicleId:guid}")]
     [RequirePermission(Permission.OrdersAssignVehicle)]
-    public async Task<IActionResult> RemoveVehicle(Guid id, Guid vehicleId)
+    public async Task<IActionResult> RemoveVehicle(Guid id, Guid vehicleId, [FromQuery] uint rowVersion)
     {
         try
         {
-            await _concreteRequests.RemoveVehicleAsync(id, vehicleId);
+            await _concreteRequests.RemoveVehicleAsync(id, vehicleId, rowVersion);
             return NoContent();
         }
         catch (KeyNotFoundException)
         {
             return NotFound();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ConcurrencyConflict();
         }
         catch (ConflictException ex)
         {
@@ -127,6 +149,10 @@ public class ConcreteRequestsController : ControllerBase
         catch (KeyNotFoundException)
         {
             return NotFound();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ConcurrencyConflict();
         }
         catch (ConflictException ex)
         {
@@ -151,6 +177,10 @@ public class ConcreteRequestsController : ControllerBase
         {
             return NotFound();
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ConcurrencyConflict();
+        }
         catch (ConflictException ex)
         {
             return Conflict(new { message = ex.Message });
@@ -160,4 +190,14 @@ public class ConcreteRequestsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    private ConflictObjectResult ConcurrencyConflict() =>
+        Conflict(new
+        {
+            errorCode = "concurrency_conflict",
+            message = "Kayıt başka bir kullanıcı tarafından güncellendi. Lütfen sayfayı yenileyip tekrar deneyin."
+        });
+
+    private static bool IsUniqueViolation(DbUpdateException ex) =>
+        ex.InnerException is PostgresException pg && pg.SqlState == PostgresErrorCodes.UniqueViolation;
 }

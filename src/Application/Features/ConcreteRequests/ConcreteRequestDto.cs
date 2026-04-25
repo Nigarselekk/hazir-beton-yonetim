@@ -31,7 +31,8 @@ public record ConcreteRequestDto(
     ConcreteRequestUserDto? AssignedBy,
     ConcreteRequestUserDto? DeliveryRecordedBy,
     ConcreteRequestUserDto? CancelledBy,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    uint RowVersion
 );
 
 public record AssignedVehicleDto(

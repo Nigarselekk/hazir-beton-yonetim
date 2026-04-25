@@ -1,5 +1,6 @@
 namespace HazirBeton.Application.Features.ConcreteRequests;
 
 public record AssignVehicleRequest(
-    Guid VehicleId
+    Guid VehicleId,
+    uint RowVersion
 );

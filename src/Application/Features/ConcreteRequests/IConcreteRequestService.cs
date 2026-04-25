@@ -9,7 +9,7 @@ public interface IConcreteRequestService
     Task<ConcreteRequestDto> CreateAsync(CreateConcreteRequestRequest request, Guid createdByUserId);
     Task<ConcreteRequestDto> ApproveAsync(Guid id, ApproveConcreteRequestRequest request, Guid approvedByUserId);
     Task<ConcreteRequestDto> AssignVehicleAsync(Guid id, AssignVehicleRequest request, Guid assignedByUserId);
-    Task RemoveVehicleAsync(Guid id, Guid vehicleId);
+    Task RemoveVehicleAsync(Guid id, Guid vehicleId, uint rowVersion);
     Task<ConcreteRequestDto> DeliverAsync(Guid id, DeliveryEntryRequest request, Guid deliveryRecordedByUserId);
     Task<ConcreteRequestDto> CancelAsync(Guid id, CancelConcreteRequestRequest request, Guid cancelledByUserId);
 }
