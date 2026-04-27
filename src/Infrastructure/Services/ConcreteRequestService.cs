@@ -1,9 +1,11 @@
 using HazirBeton.Application.Common;
 using HazirBeton.Application.Exceptions;
 using HazirBeton.Application.Features.ConcreteRequests;
+using HazirBeton.Application.Features.Sms;
 using HazirBeton.Domain.Entities;
 using HazirBeton.Domain.Enums;
 using HazirBeton.Infrastructure.Persistence;
+using HazirBeton.Infrastructure.Services.Sms;
 using Microsoft.EntityFrameworkCore;
 
 namespace HazirBeton.Infrastructure.Services;
@@ -13,10 +15,12 @@ public class ConcreteRequestService : IConcreteRequestService
     private const int MaintenanceAlertDays = 7;
 
     private readonly AppDbContext _context;
+    private readonly ISmsOutboxEnqueuer _smsOutbox;
 
-    public ConcreteRequestService(AppDbContext context)
+    public ConcreteRequestService(AppDbContext context, ISmsOutboxEnqueuer smsOutbox)
     {
         _context = context;
+        _smsOutbox = smsOutbox;
     }
 
     public async Task<PagedResult<ConcreteRequestListDto>> GetListAsync(ConcreteRequestFilterRequest filter)
@@ -153,6 +157,10 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.UpdatedAt = DateTime.UtcNow;
 
         _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
+
+        // Enqueue inside the same transaction so the approval and the outbox row land atomically.
+        await _smsOutbox.EnqueueAsync(entity, SmsEventType.RequestApproved);
+
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
@@ -239,6 +247,9 @@ public class ConcreteRequestService : IConcreteRequestService
         entity.UpdatedAt = DateTime.UtcNow;
 
         _context.Entry(entity).Property(e => e.RowVersion).OriginalValue = request.RowVersion;
+
+        await _smsOutbox.EnqueueAsync(entity, SmsEventType.RequestDelivered);
+
         await _context.SaveChangesAsync();
 
         var full = await LoadFullAsync(id);
@@ -290,6 +301,7 @@ public class ConcreteRequestService : IConcreteRequestService
                 .ThenInclude(crv => crv.Vehicle)
                     .ThenInclude(v => v.VehiclePersonnel)
                         .ThenInclude(vp => vp.Personnel)
+            .Include(cr => cr.SmsLogs)
             .Include(cr => cr.CreatedBy)
             .Include(cr => cr.ApprovedBy)
             .Include(cr => cr.AssignedBy)
@@ -305,6 +317,11 @@ public class ConcreteRequestService : IConcreteRequestService
 
         var vehicles = cr.ConcreteRequestVehicles
             .Select(crv => ToAssignedVehicleDto(crv.Vehicle, today, threshold))
+            .ToList();
+
+        var smsLogs = cr.SmsLogs
+            .OrderBy(sl => sl.CreatedAt)
+            .Select(SmsLogMapper.ToDto)
             .ToList();
 
         return new ConcreteRequestDto(
@@ -331,6 +348,7 @@ public class ConcreteRequestService : IConcreteRequestService
             cr.Note,
             cr.CancellationReason,
             vehicles,
+            smsLogs,
             ToUserDto(cr.CreatedBy),
             ToUserDto(cr.ApprovedBy),
             ToUserDto(cr.AssignedBy),

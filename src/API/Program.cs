@@ -6,6 +6,7 @@ using HazirBeton.Application.Features.ConcreteRequests;
 using HazirBeton.Application.Features.Customers;
 using HazirBeton.Application.Features.Personnel;
 using HazirBeton.Application.Features.Sites;
+using HazirBeton.Application.Features.Sms;
 using HazirBeton.Application.Features.Users;
 using HazirBeton.Application.Features.VehiclePersonnel;
 using HazirBeton.Application.Features.Vehicles;
@@ -13,6 +14,8 @@ using HazirBeton.Domain.Entities;
 using HazirBeton.Domain.Enums;
 using HazirBeton.Infrastructure.Persistence;
 using HazirBeton.Infrastructure.Services;
+using HazirBeton.Infrastructure.Services.Sms;
+using HazirBeton.Infrastructure.Services.Sms.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +41,30 @@ builder.Services.AddScoped<IConcreteRequestService, ConcreteRequestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// SMS subsystem (Milestone 5)
+builder.Services.Configure<SmsOptions>(builder.Configuration.GetSection(SmsOptions.SectionName));
+builder.Services.AddSingleton<IPhoneNumberNormalizer, PhoneNumberNormalizer>();
+builder.Services.AddSingleton<ISmsContentBuilder, SmsContentBuilder>();
+builder.Services.AddScoped<ISmsOutboxEnqueuer, SmsOutboxEnqueuer>();
+builder.Services.AddScoped<ISmsRetryService, SmsRetryService>();
+
+// Provider selection — config-driven so credentials never live in code.
+var smsSection = builder.Configuration.GetSection(SmsOptions.SectionName);
+var smsProvider = smsSection.GetValue<string>("Provider") ?? "Fake";
+if (string.Equals(smsProvider, "Netgsm", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddHttpClient<ISmsProvider, NetgsmSmsProvider>(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(15);
+    });
+}
+else
+{
+    builder.Services.AddScoped<ISmsProvider, FakeSmsProvider>();
+}
+
+builder.Services.AddHostedService<SmsDispatchWorker>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]

@@ -1,3 +1,4 @@
+using HazirBeton.Application.Features.Sms;
 using HazirBeton.Domain.Enums;
 
 namespace HazirBeton.Application.Features.ConcreteRequests;
@@ -26,6 +27,7 @@ public record ConcreteRequestDto(
     string? Note,
     string? CancellationReason,
     List<AssignedVehicleDto> Vehicles,
+    List<SmsLogDto> SmsLogs,
     ConcreteRequestUserDto? CreatedBy,
     ConcreteRequestUserDto? ApprovedBy,
     ConcreteRequestUserDto? AssignedBy,
