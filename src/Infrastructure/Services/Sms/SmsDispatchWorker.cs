@@ -10,6 +10,12 @@ using Microsoft.Extensions.Options;
 
 namespace HazirBeton.Infrastructure.Services.Sms;
 
+// Assumes a single API instance. The batch query has no row-level claim
+// (no FOR UPDATE SKIP LOCKED, no ClaimedAt/ClaimedBy columns), so two
+// workers running concurrently would both pick up the same Pending row
+// and dispatch the SMS twice. Before scaling the API horizontally, add a
+// claim mechanism (Postgres advisory locks, SKIP LOCKED on the SELECT, or
+// a ClaimedBy/ClaimedUntil pair on SmsLog) — that's the place to start.
 public class SmsDispatchWorker : BackgroundService
 {
     // Backoff schedule (1m, 5m, 30m, 2h, 6h). Index = RetryCount before this attempt.

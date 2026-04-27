@@ -52,7 +52,18 @@ builder.Services.AddScoped<ISmsRetryService, SmsRetryService>();
 // Provider selection — config-driven so credentials never live in code.
 var smsSection = builder.Configuration.GetSection(SmsOptions.SectionName);
 var smsProvider = smsSection.GetValue<string>("Provider") ?? "Fake";
-if (string.Equals(smsProvider, "Netgsm", StringComparison.OrdinalIgnoreCase))
+var smsProviderIsNetgsm = string.Equals(smsProvider, "Netgsm", StringComparison.OrdinalIgnoreCase);
+
+// Fail-fast in Production: silently shipping with the Fake provider would mean
+// no real SMS goes out and customers never learn their orders were approved.
+if (builder.Environment.IsProduction() && !smsProviderIsNetgsm)
+{
+    throw new InvalidOperationException(
+        $"SMS sağlayıcısı production ortamında '{smsProvider}' olamaz. " +
+        "Sms:Provider=Netgsm olarak yapılandırın.");
+}
+
+if (smsProviderIsNetgsm)
 {
     builder.Services.AddHttpClient<ISmsProvider, NetgsmSmsProvider>(client =>
     {
@@ -135,6 +146,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+if (!smsProviderIsNetgsm)
+{
+    app.Logger.LogWarning(
+        "SMS sağlayıcısı '{Provider}' olarak yapılandırıldı. Hiçbir gerçek SMS gönderilmeyecek; bu ayar yalnızca development/staging içindir.",
+        smsProvider);
+}
 
 // Seed initial HeadManager
 await SeedHeadManagerAsync(app);
